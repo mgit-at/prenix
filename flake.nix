@@ -6,13 +6,17 @@
   outputs = { self }: {
     lib = rec {
       main = nixpkgs: import ./default.nix nixpkgs;
-      prebuildForSystem = flake: system: let
+
+      forFlakeAndSystem = args: flake: system: let
         fncs = main {
           lib = flake.inputs.nixpkgs.lib;
           pkgs = flake.inputs.nixpkgs.legacyPackages.${system};
         };
       in
-        fncs.prebuildFlake { inherit flake; limitSystem = system; };
+        fncs.prebuildFlake { inherit flake; limitSystem = system; } // args;
+
+      preevalForSystem = forFlakeAndSystem { build = false; };
+      prebuildForSystem = forFlakeAndSystem { build = true; };
     };
   };
 }

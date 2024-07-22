@@ -1,10 +1,10 @@
 { pkgs, lib, ... }: rec {
   # gets drv and all outputs for derivation
-  aggregateDrvAndResults = name: list: pkgs.releaseTools.aggregate {
+  aggregateDrvAndResults = { name, drv ? true, output ? true }: list: pkgs.releaseTools.aggregate {
     inherit name;
     constituents = lib.concatMap (drv:
-      [ drv.drvPath ] ++
-      (map (o: drv.${o}) drv.outputs)
+      (if drv then [ drv.drvPath ] else []) ++
+      (if output then (map (o: drv.${o}) drv.outputs) else [])
     ) list;
   };
 
@@ -27,8 +27,12 @@
   in
     pkgs ++ configs;
 
-  prebuildFlake = { flake, limitSystem ? null }: let
+  prebuildFlake = { flake, limitSystem ? null, build ? true }: let
     extracted = extractFromFlake { inherit flake limitSystem; };
   in
-    aggregateDrvAndResults "pre" extracted;
+    aggregateDrvAndResults {
+      name = "pre";
+      drv = true;
+      output = true;
+    } extracted;
 }
