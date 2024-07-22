@@ -9,9 +9,10 @@
   };
 
   # gets all: packages.*.*, nixosConfigurations.*.config.system.build.toplevel
-  extractFromFlake = { flake, limitSystem ? null, extra ? null }:
+  extractFromFlake = { flake, limitSystem ? null, gatherExtraFnc ? null }:
   let
     # TODO: generify getting system so we can re-use for devShell, apps, etc
+    # TODO: add prebuildExtra or similar key to expose other things for build
     pkgs = if flake ? "packages" then
       (let
         systems =

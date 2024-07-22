@@ -3,11 +3,16 @@
 
   inputs = {};
 
-  outputs = { self, nixpkgs }: {
-
-    packages.x86_64-linux.hello = nixpkgs.legacyPackages.x86_64-linux.hello;
-
-    packages.x86_64-linux.default = self.packages.x86_64-linux.hello;
-
+  outputs = { self }: {
+    lib = rec {
+      main = nixpkgs: import ./default.nix nixpkgs;
+      prebuildForSystem = flake: system: let
+        fncs = main {
+          lib = flake.inputs.nixpkgs.lib;
+          pkgs = flake.inputs.nixpkgs.legacyPackages.${system};
+        };
+      in
+        fncs.prebuildFlake { inherit flake; limitSystem = system; };
+    };
   };
 }
