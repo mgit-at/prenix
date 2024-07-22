@@ -2,9 +2,9 @@
   # gets drv and all outputs for derivation
   aggregateDrvAndResults = { name, drv ? true, output ? true }: list: pkgs.releaseTools.aggregate {
     inherit name;
-    constituents = lib.concatMap (drv:
-      (if drv then [ drv.drvPath ] else []) ++
-      (if output then (map (o: drv.${o}) drv.outputs) else [])
+    constituents = lib.concatMap (d:
+      (if drv then [ d.drvPath ] else []) ++
+      (if output then (map (o: d.${o}) d.outputs) else [])
     ) list;
   };
 
